@@ -1,0 +1,12 @@
+select ff.FF_ID,qm.Qtr_Name,ff.URN,ff.Seller_Name,ff.ISWithinDueDT, ff.addBy,        
+ Convert(varchar,ff.addDate,107)FiledDate,sm.StateName, (select top 1 ZonalOffice from ZonalOffice_Master where ZO_ID = (select top 1 ZO_ID from     
+ tn_formB where addBy = ff.loginID))as ZonalOffice,    
+       
+dbo.ufn_GetSubstancesWithURNandQuarter(ff.URN, 'Lavel2Substance', 0, ff.Quater)as SubStanceName,      
+sum(case when FC.Category=1 then FC.Quantity_Received end)Import,sum(case when FC.Category=2 then FC.Quantity_Received end)Export,sum(case when FC.Category=3 then FC.Quantity_Received end)Consume     
+ from tn_FormF  ff inner join Quater_Master qm ON ff.Quater=qm.Qtr_ID      
+ inner join State_Master sm ON ff.State_ID=sm.S_ID  inner join tn_FormB fb on ff.addBy = fb.addBy inner join ff_Receipt_Import FC ON ff.FF_ID=FC.FF_ID       
+ where ff.deleted=0 and fb.deleted = 0 
+ group by ff.FF_ID,qm.Qtr_Name,ff.URN,ff.Seller_Name,ff.ISWithinDueDT, ff.addBy,        
+ ff.addDate,sm.StateName,ff.loginID,ff.Quater
+ order by ff.FF_ID DESC
